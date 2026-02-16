@@ -1,0 +1,15 @@
+{
+  "name": "ether-utils",
+  "version": "1.0.0",
+  "description": "基于 ethers 的 EVM 地址与 selector 工具",
+  "main": "src/vanity.js",
+  "type": "commonjs",
+  "scripts": {
+    "vanity": "node src/vanity.js",
+    "selector": "node src/selector.js"
+  },
+  "dependencies": {
+    "ethers": "^6.15.0"
+  },
+  "license": "MIT"
+}
