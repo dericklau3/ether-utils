@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "description": "基于 ethers 的 EVM 地址与 selector 工具",
   "main": "src/vanity.js",
+  "packageManager": "bun@1",
   "type": "commonjs",
   "scripts": {
-    "vanity": "node src/vanity.js",
-    "selector": "node src/selector.js"
+    "vanity": "bun src/vanity.js",
+    "selector": "bun src/selector.js",
+    "keystore": "bun src/keystore.js",
+    "test": "bun test"
   },
   "dependencies": {
     "ethers": "^6.15.0"
