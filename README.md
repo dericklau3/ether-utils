@@ -4,7 +4,7 @@
 
 1. `src/vanity.js`：生成指定开头、指定结尾、或同时指定开头结尾的 EVM 地址
 2. `src/selector.js`：通过函数名数字自增，查找满足目标前缀的 function selector
-3. `src/keystore.js`：使用文件内配置完成私钥与 keystore JSON 的互转
+3. `src/keystore.js`：使用文件内配置批量完成私钥与 keystore JSON 的互转，支持按项目分组存放
 
 ## 安装依赖
 
@@ -70,7 +70,7 @@ bun run selector --name transfer --args address,address,uint256
 
 ## 功能 3：私钥与 keystore 互转（`src/keystore.js`）
 
-这个脚本不走命令行参数，而是直接修改文件顶部的 `CONFIG`：
+这个脚本不走命令行参数，而是直接修改文件顶部的 `CONFIG`。配置统一使用数组，且必须指定 `group`：
 
 ```js
 const MODES = {
@@ -80,17 +80,28 @@ const MODES = {
 
 const CONFIG = {
   mode: MODES.ENCRYPT,
-  privateKey: "0xYOUR_PRIVATE_KEY",
+  keystoreDir: KEYSTORE_DIR,
+  group: "project-a",
+  privateKeys: [
+    "0xYOUR_PRIVATE_KEY_1",
+    "0xYOUR_PRIVATE_KEY_2"
+  ],
   password: "YOUR_KEYSTORE_PASSWORD",
-  keystoreInput: "0xYOUR_ADDRESS"
+  keystoreInputs: [
+    "0xYOUR_ADDRESS_1",
+    "0xYOUR_ADDRESS_2"
+  ]
 };
 ```
 
 私钥转 keystore：
 
 1. 把 `mode` 设为 `MODES.ENCRYPT`
-2. 填好 `privateKey` 和 `password`
-3. 运行：
+2. 把多个私钥填进 `privateKeys` 数组
+3. 填好 `password`
+4. 填好 `group`，例如 `project-a` 或 `project-b`
+5. 如需改根目录，修改 `keystoreDir`
+6. 运行：
 
 ```bash
 bun run keystore
@@ -98,24 +109,32 @@ bun run keystore
 
 脚本会自动：
 
-- 创建项目根目录下的 `keystores/`
-- 输出到 `keystores/<钱包地址>.json`
+- 创建 `keystoreDir/group/`
+- 输出到 `keystoreDir/group/<钱包地址>.json`
+
+默认 `keystoreDir` 是项目根目录下的 `keystores/`，例如：
+
+```text
+keystores/project-a/0x1234....json
+keystores/project-b/0xabcd....json
+```
 
 keystore 转私钥：
 
 1. 把 `mode` 设为 `MODES.DECRYPT`
 2. 填好 `password`
-3. 把 `keystoreInput` 设为钱包地址
-4. 运行：
+3. 把多个钱包地址填进 `keystoreInputs` 数组
+4. 填好要查找的 `group`
+5. 运行：
 
 ```bash
 bun run keystore
 ```
 
-脚本会在 `keystores/` 目录下自动按地址查找对应文件，比较时不区分大小写。
+脚本只会在 `keystoreDir/group/` 目录下按地址查找对应文件，比较时不区分大小写。没有指定 `group`，或地址在别的 group 里，都会直接报错，避免多个项目的 keystore 混在一起。
 
 ## 说明
 
 - 地址靓号和特殊 selector 都是概率问题，目标越苛刻，耗时越长。
 - 请妥善保管输出的私钥和助记词，不要泄露。
-- `src/keystore.js` 默认是占位配置，使用前请先把私钥、密码和 keystore 内容改成你自己的值。
+- `src/keystore.js` 默认是占位配置，使用前请先把私钥、密码、group 和地址改成你自己的值。

@@ -2,3 +2,4 @@ node_modules
 docs
 keystores
 test
+.DS_Store
